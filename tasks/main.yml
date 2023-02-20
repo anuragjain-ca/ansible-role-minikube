@@ -1,0 +1,45 @@
+---
+# tasks file for ansible-role-minikube
+- name: download checksum
+  get_url:
+    url: '{{ download_mirror }}/{{ minikube_filename }}.sha256'
+    dest: '/tmp/{{ minikube_filename }}-{{ minikube_version }}.sha256'
+    force: no
+    use_proxy: yes
+    validate_certs: yes
+    mode: 'u=rw,go=r'
+
+- name: read checksum
+  slurp:
+    src: '/tmp/{{ minikube_filename }}-{{ minikube_version }}.sha256'
+  register: sha256sum
+
+- name: download Minikube
+  get_url:
+    url: '{{ download_mirror }}/{{ minikube_filename }}'
+    dest: '/tmp/{{ minikube_filename }}-{{ minikube_version }}'
+    checksum: 'sha256:{{ sha256sum.content | b64decode | trim }}'
+    force: no
+    use_proxy: yes
+    validate_certs: yes
+    mode: 'u=rw,go=r'
+
+- name: create the Minikube installation dir
+  become: yes
+  file:
+    state: directory
+    owner: root
+    group: root
+    mode: 'u=rwx,go=rx'
+    dest: '{{ install_dir }}'
+
+- name: install Minikube
+  become: yes
+  copy:
+    src: '/tmp/{{ minikube_filename }}-{{ minikube_version }}'
+    remote_src: yes
+    dest: '{{ install_dir }}/minikube'
+    force: yes
+    owner: root
+    group: root
+    mode: 'u=rwx,go=rx'

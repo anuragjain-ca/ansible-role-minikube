@@ -1,0 +1,9 @@
+---
+# Installation directory for Minikube
+install_dir: '/usr/local/bin'
+
+# Mirror to download the Minikube from
+download_mirror: 'https://github.com/kubernetes/minikube/releases/download/v{{ minikube_version }}'
+
+# File name of the Minikube redistributable file
+minikube_filename: 'minikube-linux-amd64'
